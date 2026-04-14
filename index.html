@@ -356,27 +356,19 @@ html, body {
 
 /* Counter number */
 #counter-value {
-    font-size: 50px;
+    font-size: 75px;   /* 👈 increase this */
     font-weight: 800;
+
     min-width: 20px;
     text-align: center;
+
+    padding: 6px 10px;
+    border-radius: 6px;
 
     user-select: none;
     touch-action: none;
 
     cursor: grab;
-}
-
-#counter-value {
-    font-size: 50px;
-    font-weight: 800;
-
-    padding: 6px 10px;
-    border-radius: 6px;
-
-    cursor: grab;
-    user-select: none;
-
 }
 
 #counter-value:active {
@@ -599,6 +591,36 @@ html, body {
 	font-size: 50px;
 	font-weight: 70;
 }
+
+.player-1 {
+    color: #ff7a7a; /* light red */
+	font-family: "ticker-font", sans-serif;
+	font-size: 25px;
+	font-weight: 70;
+	text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.player-2 {
+    color: #7ab6ff; /* light blue */
+	font-family: "ticker-font", sans-serif;
+	font-size: 50px;
+	font-weight: 70;
+	text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.player-label {
+    font-size: 20px;
+    opacity: 0.9;
+    line-height: 1;
+	margin-bottom: -15px;
+}
+
+.chip-label {
+    font-family: "ticker-font", sans-serif;
+    font-size: 50px; /* bigger */
+    font-weight: 70;
+    line-height: 1;
+}
 </style>
 </head>
 
@@ -608,7 +630,10 @@ html, body {
     <div class="top-bar-inner">
         <!-- Left side -->
 <div class="top-left">
-    <div class="chip-label">Star Chips:</div>
+<div class="top-left">
+    <div id="player-label" class="player-label">Player 1</div>
+    <div id="chip-toggle" class="chip-label">Star Chips:</div>
+</div>
 </div>
 
         <!-- Right side -->
@@ -677,6 +702,9 @@ html, body {
 </div>
 <script src="cards.js"></script>
 <script>
+
+console.log("SCRIPT STARTED");
+
 let gameState = {};
 const wrapper = document.getElementById("shopkeeper-wrapper");
 const idle = document.getElementById("idle");
@@ -692,9 +720,18 @@ const TYPE_ICONS = {
     trap: "img/card/trap.png"
 };
 
+const players = [
+    { chips: 0, collection: {} },
+    { chips: 0, collection: {} }
+];
+
+let currentPlayerIndex = 0;
+
 // =====================
 // NEWS TICKER (STEP 3)
 // =====================
+
+console.log("getCurrentPlayer:", typeof getCurrentPlayer);
 
 const newsTicker = document.getElementById("news-ticker");
 const newsText = document.getElementById("news-text");
@@ -1037,7 +1074,9 @@ function renderCards(category, containerId) {
 
         const item = document.createElement("div");
         item.className = "list-item card" + (card.hasBeenBought ? " owned" : "");
-const currentChips = counter;
+const currentChips = getCurrentPlayer().chips;
+const key = card.id || card.name;
+const owned = getCurrentPlayer().collection[key] || 0;
 
 let buyLabel = "Buy";
 let buyClass = "buy-btn";
@@ -1053,7 +1092,7 @@ if (card.copies <= 0) {
 }
 
 
-        const canBuy = counter >= card.cost && card.copies > 0;
+        const canBuy = getCurrentPlayer().chips >= card.cost && card.copies > 0;
 
 item.innerHTML = `
     <img class="card-icon" src="${TYPE_ICONS[card.type] || ""}" />
@@ -1061,7 +1100,7 @@ item.innerHTML = `
     <div class="card-info">
         <div class="card-name">${card.name}</div>
         <div class="card-stats">
-            Cost: ${card.cost} | Copies: ${card.copies}/${card.maxCopies}
+             Cost: ${card.cost} | Copies: ${card.copies}/${card.maxCopies} | Owned: ${owned}
         </div>
     </div>
 
@@ -1084,7 +1123,7 @@ buyBtn.addEventListener("click", () => {
     }
 
     // NOT ENOUGH CHIPS
-    if (counter < card.cost) {
+    if (getCurrentPlayer().chips < card.cost) {
         const pool = buyFeedbackDialogue.notEnough;
         const phrase = pool[Math.floor(Math.random() * pool.length)];
         typeText(phrase);
@@ -1103,22 +1142,26 @@ buyBtn.addEventListener("click", () => {
 }
 
 function handleBuy(category, index) {
-
     const card = gameState[category][index];
     if (!card) return;
 
-    // can't buy if no stock or not enough chips
     if (card.copies <= 0) return;
-    if (counter < card.cost) return;
+    if (getCurrentPlayer().chips < card.cost) return;
 
-    // subtract cost
-    setCounter(counter - card.cost);
+    const player = getCurrentPlayer();
+    setCounter(player.chips - card.cost);
 
-    // reduce stock
     card.copies--;
-	card.hasBeenBought = true;
+    card.hasBeenBought = true;
 
-    // refresh that tab only
+const key = card.id || card.name;
+
+if (!player.collection[key]) {
+    player.collection[key] = 0;
+}
+
+player.collection[key]++;
+
     renderCards(category, category);
 }
 
@@ -1245,6 +1288,31 @@ const counterDialogueExact = {
 
 let triggeredMilestones = new Set();
 
+const chipToggle = document.getElementById("chip-toggle");
+const playerLabel = document.getElementById("player-label");
+
+chipToggle.addEventListener("click", () => {
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+
+    const playerNum = currentPlayerIndex + 1;
+	
+	
+
+    // update label above
+    playerLabel.textContent = `Player ${playerNum}`;
+
+    // update chip display immediately
+    counterValue.textContent = getCurrentPlayer().chips;
+
+    // optional: keep UI in sync with shop if needed later
+    const activeTab = document.querySelector(".tab.active")?.dataset.tab;
+    if (activeTab) renderCards(activeTab, activeTab);
+
+    typeText(`Now serving Player ${playerNum}.`);
+	updatePlayerTheme();
+});
+
+
 function handleCounterMilestone(oldValue, newValue, wasIncreasing) {
     // SPECIAL CASE: allow zero always when reached
     if (newValue === 0) {
@@ -1280,30 +1348,51 @@ function handleCounterMilestone(oldValue, newValue, wasIncreasing) {
 /* =====================
    SWIPE COUNTER (STEP SYSTEM - FIXED)
 ===================== */
-let counter = 0;
 let previousCounter = 0;
 const counterValue = document.getElementById("counter-value");
 
+function getCurrentPlayer() {
+    return players[currentPlayerIndex];
+}
+
+function updatePlayerTheme() {
+    const playerNum = currentPlayerIndex + 1;
+
+    const isPlayer1 = playerNum === 1;
+
+    const colorClass = isPlayer1 ? "player-1" : "player-2";
+
+    // elements
+    const playerLabel = document.getElementById("player-label");
+    const chipLabel = document.getElementById("chip-toggle");
+    const counter = document.getElementById("counter-value");
+
+    // reset old classes
+    playerLabel.classList.remove("player-1", "player-2");
+    chipLabel.classList.remove("player-1", "player-2");
+    counter.classList.remove("player-1", "player-2");
+
+    // apply new class
+    playerLabel.classList.add(colorClass);
+    chipLabel.classList.add(colorClass);
+    counter.classList.add(colorClass);
+}
+
 function setCounter(val) {
+    const player = getCurrentPlayer();
+
     const newValue = Math.max(0, Math.min(val, 999));
 
-    if (newValue === counter) return;
+    if (newValue === player.chips) return;
 
-    // ⭐ OPTIONAL CHANGE GOES HERE
-    if (newValue < previousCounter) {
-        triggeredMilestones.delete(newValue);
-    }
+    const wasIncreasing = newValue > player.chips;
 
-    const wasIncreasing = newValue > counter;
+    previousCounter = player.chips;
+    player.chips = newValue;
 
-    previousCounter = counter;
-    counter = newValue;
+    counterValue.textContent = player.chips;
 
-    counterValue.textContent = counter;
-
-    if (navigator.vibrate) navigator.vibrate(10);
-
-    handleCounterMilestone(previousCounter, counter, wasIncreasing);
+    handleCounterMilestone(previousCounter, player.chips, wasIncreasing);
 }
 
 /* --- STEP-BASED SWIPE SYSTEM --- */
@@ -1337,7 +1426,7 @@ counterValue.addEventListener("pointermove", (e) => {
 
     while (Math.abs(accumulated) >= STEP_SIZE) {
         const step = Math.sign(accumulated);
-        setCounter(counter + step);
+        setCounter(getCurrentPlayer().chips + step);
         accumulated -= STEP_SIZE * step;
     }
 });
@@ -1363,7 +1452,7 @@ function applyInertia() {
 
         while (Math.abs(accumulated) >= STEP_SIZE) {
             const stepVal = Math.sign(accumulated);
-            setCounter(counter + stepVal);
+            setCounter(getCurrentPlayer().chips + stepVal);
             accumulated -= STEP_SIZE * stepVal;
         }
 
@@ -1380,6 +1469,7 @@ function applyInertia() {
 ===================== */
 setCounter(0);
 typeText("Welcome! Take a look at my featured stock!");
+updatePlayerTheme();
 requestAnimationFrame(animateCarousel);
 setTimeout(() => {
     startNewsTicker();
