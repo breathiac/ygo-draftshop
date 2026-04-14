@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Shop</title>
+
+<style>
+
+@font-face {
+    font-family: "ticker-font";
+    src: url("tickerfont.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* =====================
+   MAIN CONTENT AREA
+===================== */
+#main-content {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+
+    /* subtract space for bottom UI */
+    height: calc(100% - 60px - 140px);
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* =====================
+   TAB BAR
+===================== */
+#tab-bar {
+    display: flex;
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 2px solid #444;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+
+    background: transparent;
+    border: none;
+    color: white;
+
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.tab.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid #888;
+}
+
+/* =====================
+   TAB CONTENT
+===================== */
+#tab-content {
+    flex: 1;
+    position: relative;
+
+    min-height: 0; /* THIS FIXES SCROLLING */
+}
+
+/* Panels */
+.tab-panel {
+    display: none;
+    height: 100%;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* =====================
+   SCROLLABLE LIST
+===================== */
+.list {
+    height: 100%;
+    overflow-y: auto;
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+	padding-bottom: 18vh;
+
+}
+
+/* Items */
+.list-item {
+    padding: 12px;
+
+    background: rgba(0, 0, 0, 0.6);
+    border: 0px solid #555;
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+.list-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* =====================
+   TOP MENU BAR
+===================== */
+#top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    height: 60px;
+    z-index: 1000; /* always above everything */
+
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+	
+	    /* image layer */
+    background-image: url("img/chips.png");
+    background-repeat: repeat-x; /* or no-repeat depending on your asset */
+    background-size: cover;
+    background-position: center;
+	
+	
+    border-bottom: 2px solid #444;
+
+    display: flex;
+    align-items: center;
+}
+
+.top-bar-inner {
+    width: 100%;
+    padding: 0 12px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-left {
+    font-size: 18px;
+	font-style: italic;
+    font-weight: bold;
+}
+
+.top-right {
+    display: flex;
+    gap: 10px;
+}
+
+#test-dialogue-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 0px solid #555;
+    color: white;
+
+    padding: 6px 10px;
+    border-radius: 6px;
+
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#test-dialogue-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: transparent;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* =====================
+   BACKGROUND (JS SCROLLED TILE)
+===================== */
+#background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image: url("img/shop_bg6.png");
+    background-repeat: repeat;
+}
+
+/* MAIN UI CONTAINER */
+#shopkeeper-container {
+    position: fixed;
+    bottom: 2vh;
+    left: 2vw;
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 3vw;
+
+    max-width: 95vw;
+}
+
+/* AVATAR WRAPPER */
+#shopkeeper-wrapper {
+    position: relative;
+    width: 22vw;
+    max-width: 140px;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+
+    border: 0px solid #555;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+.shopkeeper-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+#idle { z-index: 1; }
+#talking { z-index: 2; }
+
+#shopkeeper-wrapper:hover .shopkeeper-img {
+    transform: scale(1.05);
+}
+
+/* DIALOGUE BOX */
+#dialogue-box {
+    width: 60vw;
+    max-width: 260px;
+    min-height: 60px;
+
+    background-image: url("img/text_bg.png");
+    background-size: cover;
+    background-position: center;
+
+    position: relative;
+
+    border: 0px solid #555;
+    border-radius: 10px;
+    padding: 10px;
+
+    display: none;
+
+    flex: 0 0 auto;
+
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#dialogue-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    z-index: 0;
+}
+
+#dialogue-text {
+    position: relative;
+    z-index: 1;
+    font-size: clamp(12px, 3.5vw, 16px);
+    line-height: 1.4;
+}
+
+#dialogue-box.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    width: 93%;
+}
+
+.card-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.buy-btn {
+    flex-shrink: 0;
+}
+
+/* LEFT ICON */
+.card-icon {
+    width: 28px;
+    height: 28px;
+
+    object-fit: contain;
+
+    flex-shrink: 0;
+
+    border-radius: 4px;
+    border: 0px solid #444;
+    background: rgba(0,0,0,0.3);
+}
+
+.card-name {
+    font-weight: 700;   /* bold */
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+.card-stats {
+    font-size: 13px;    /* slightly smaller */
+    opacity: 0.75;
+}
+
+.counter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Buttons */
+.counter-container button {
+    width: 28px;
+    height: 28px;
+
+    background: rgba(255, 255, 255, 0.1);
+    border: 0px solid #555;
+    color: white;
+
+    border-radius: 6px;
+    cursor: pointer;
+
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.counter-container button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Counter number */
+#counter-value {
+    font-size: 50px;
+    font-weight: 800;
+    min-width: 20px;
+    text-align: center;
+
+    user-select: none;
+    touch-action: none;
+
+    cursor: grab;
+}
+
+#counter-value {
+    font-size: 50px;
+    font-weight: 800;
+
+    padding: 6px 10px;
+    border-radius: 6px;
+
+    cursor: grab;
+    user-select: none;
+
+}
+
+#counter-value:active {
+    cursor: grabbing;
+}
+
+.buy-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 4px 6px;
+    font-size: 25px;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* unavailable (not enough chips) */
+.buy-btn.disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* sold out */
+.buy-btn.sold-out {
+    opacity: 0.25;
+    cursor: default;
+    text-decoration: line-through;
+}
+
+/* can buy state */
+.buy-btn.can-buy {
+    color: #7CFF7C;
+    animation: pulseBuy 1.6s ease-in-out infinite;
+}
+
+/* subtle pulse */
+@keyframes pulseBuy {
+    0%   { transform: scale(1);   opacity: 1; }
+    50%  { transform: scale(1.2); opacity: 0.85; }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+.list-item.owned {
+    background: rgba(100, 255, 100, 0.2);
+}
+
+#startup-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    z-index: 2000;
+}
+
+#startup-title {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+#startup-carousel {
+    display: flex;
+    gap: 12px;
+
+    padding: 14px;
+
+    background: rgba(0,0,0,0);
+    border: 0px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+
+    max-width: 90vw;
+    overflow-x: auto;
+	    /* hide scrollbar - Firefox */
+    scrollbar-width: none;
+
+    /* hide scrollbar - IE / Edge legacy */
+    -ms-overflow-style: none;
+}
+
+#startup-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+
+
+.carousel-item {
+    min-width: 140px;
+    height: 200px;
+
+    padding: 0px;
+    border-radius: 0px;
+
+    background-image: url("img/card_back.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.carousel-item:hover {
+    transform: translateY(-4px);
+
+	background-image: url("img/card_back2.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 1;
+
+}
+
+.carousel-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.carousel-name {
+    font-weight: bold;
+    font-size: 15px;
+    text-align: center;
+}
+
+.carousel-stats {
+	font-weight: bold;
+    font-size: 12px;
+    opacity: 0.8;
+    text-align: center;
+	    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 1),
+        0 2px 8px rgba(0, 0, 0, 1),
+        0 0 12px rgba(0, 0, 0, 0.95);
+}
+
+.carousel-icon {
+    width: 40px;
+    height: 40px;
+}
+
+#news-ticker {
+    position: fixed;
+    bottom: 12vh; /* above shopkeeper */
+    left: 2vw;
+    width: 89vw;
+    max-width: 600px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+	font-family: "ticker-font", sans-serif;
+	
+
+    background: rgba(0,0,0,0);
+    border-radius: 0px;
+
+    padding: 4px 8px;
+
+
+
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+
+    overflow: hidden;
+    z-index: 1500;
+}
+
+#news-ticker.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#news-logo {
+    height: 22px;
+    margin-right: 10px;
+    flex-shrink: 0;
+	
+}
+
+#news-track {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+#news-text {
+    white-space: nowrap;
+    display: inline-block;
+	top: -3px;
+	font-size: 20px;
+    position: relative;
+    padding-left: 100%;
+    animation: tickerMove 100s linear infinite;
+}
+
+@keyframes tickerMove {
+    0%   { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+}
+
+.chip-label {
+    font-family: "ticker-font", sans-serif;
+	font-size: 50px;
+	font-weight: 70;
+}
+</style>
+</head>
+
+<body>
+
+<div id="top-bar">
+    <div class="top-bar-inner">
+        <!-- Left side -->
+<div class="top-left">
+    <div class="chip-label">Star Chips:</div>
+</div>
+
+        <!-- Right side -->
+<div class="top-right">
+<div id="counter-value">0</div>
+</div>
+    </div>
+</div>
+
+<div id="main-content">
+
+    <!-- Tabs -->
+    <div id="tab-bar">
+        <button class="tab active" data-tab="monsters">Monsters</button>
+        <button class="tab" data-tab="spells">Spells</button>
+        <button class="tab" data-tab="traps">Traps</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="tab-content">
+
+        <!-- MAIN -->
+<div class="tab-panel" id="monsters">
+    <div class="list"></div>
+</div>
+
+<div class="tab-panel" id="spells">
+    <div class="list"></div>
+</div>
+
+<div class="tab-panel" id="traps">
+    <div class="list"></div>
+</div>
+
+    </div>
+
+<div id="startup-overlay">
+    <div id="startup-title">Featured Cards:</div>
+    <div id="startup-carousel"></div>
+</div>
+
+</div>
+
+<div id="background"></div>
+
+<div id="news-ticker">
+    <img src="img/dnn-small.png" id="news-logo" />
+
+    <div id="news-track">
+        <div id="news-text"></div>
+    </div>
+</div>
+
+
+<div id="shopkeeper-container">
+
+    <div id="shopkeeper-wrapper">
+        <img id="idle" class="shopkeeper-img" src="img/shop_blink.gif" alt="Idle Shopkeeper">
+        <img id="talking" class="shopkeeper-img" src="img/shop_talk.gif" alt="Talking Shopkeeper" style="display:none;">
+    </div>
+
+    <div id="dialogue-box">
+        <div id="dialogue-text"></div>
+    </div>
+
+</div>
+<script src="cards.js"></script>
+<script>
+let gameState = {};
+const wrapper = document.getElementById("shopkeeper-wrapper");
+const idle = document.getElementById("idle");
+const talking = document.getElementById("talking");
+const dialogueBox = document.getElementById("dialogue-box");
+const dialogueText = document.getElementById("dialogue-text");
+const TYPE_ICONS = {
+    effect: "img/card/effect.png",
+    fusion: "img/card/fusion.png",
+    normal: "img/card/normal.png",
+    ritual: "img/card/ritual.png",
+    spell: "img/card/spell.png",
+    trap: "img/card/trap.png"
+};
+
+// =====================
+// NEWS TICKER (STEP 3)
+// =====================
+
+const newsTicker = document.getElementById("news-ticker");
+const newsText = document.getElementById("news-text");
+
+const newsStories = [
+    "James stuns his way to a first-round victory in opening game",
+    "Curtis dominates in an oppressive seven-duel win streak",
+    "Counterfeit claims emerge in regard to recent flood of foil token cards",
+    "Rumours swirl around odd aroma emanating from the mysterious cube",
+    "Fierce debates over randomness of coin flips erupt",
+    "Local shopkeeper under investigation by Chris Hansen",
+    "New research suggests traps are, infact, gay",
+	"Collectors advised to check inventory frequently after reported thefts",
+	"Conspiracy theorist claims: 'Satellite Cannon is not a real card.'",
+	"Duel disk manufacturing fault prompts mass product recall"
+];
+
+function startNewsTicker() {
+    if (!newsText) return;
+
+    // pick a few random stories
+    const shuffled = [...newsStories].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, 10); // how many stories you want
+
+    // join them with a dot separator
+    const combined = selected.join("   •   ");
+
+    newsText.textContent = combined;
+
+    newsTicker.classList.add("show");
+}
+
+function hideNewsTicker() {
+    newsTicker.classList.remove("show");
+}
+
+let carouselOffset = 0;
+const scrollSpeed = 1;
+
+
+const carousel = document.getElementById("startup-carousel");
+let carouselVisible = true;
+
+carousel.addEventListener("scroll", () => {
+    userIsScrolling = true;
+
+    clearTimeout(resumeTimeout);
+    resumeTimeout = setTimeout(() => {
+        userIsScrolling = false;
+        carouselOffset = carousel.scrollLeft; // sync position
+    }, 1.2); // resume after 1.2s of inactivity
+});
+
+function getAllCardsFlat() {
+    return Object.values(gameState).flat();
+}
+
+function getRandomCards(count = 25) {
+    const pool = getAllCardsFlat();
+    const copy = [...pool];
+
+    const result = [];
+
+    while (result.length < count && copy.length) {
+        const i = Math.floor(Math.random() * copy.length);
+        result.push(copy.splice(i, 1)[0]);
+    }
+
+    return result;
+}
+
+let userIsScrolling = false;
+let resumeTimeout = null;
+let carouselPaused = false;
+
+function renderCarousel() {
+    if (!carousel) return;
+
+    const cards = getRandomCards(25);
+
+    const fullList = [...cards, ...cards]; // duplicate for seamless loop
+
+    carousel.innerHTML = "";
+
+    fullList.forEach(card => {
+        const item = document.createElement("div");
+        item.className = "carousel-item";
+
+        item.innerHTML = `
+            <img class="carousel-icon"
+                 src="${TYPE_ICONS[card.type] || ""}" />
+
+            <div class="carousel-name">${card.name}</div>
+
+            <div class="carousel-stats">
+                Cost: ${card.cost} | Copies: ${card.copies}
+            </div>
+        `;
+
+item.addEventListener("click", () => {
+    carouselPaused = true;
+
+    cardReactionDialogue(card);
+
+    // resume after a short delay
+    clearTimeout(window.carouselResumeTimer);
+    window.carouselResumeTimer = setTimeout(() => {
+        carouselPaused = false;
+    }, 3500);
+});
+
+        carousel.appendChild(item);
+    });
+}
+
+
+function animateCarousel() {
+    if (carousel && !userIsScrolling && !carouselPaused) {
+        carouselOffset += scrollSpeed;
+
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+        if (carouselOffset >= maxScroll) {
+            carouselOffset = 0;
+        }
+
+        carousel.scrollLeft = carouselOffset;
+    }
+
+    requestAnimationFrame(animateCarousel);
+}
+
+/* =====================
+   MUSIC
+===================== */
+
+const buySound = new Audio("music/buy.mp3");
+buySound.volume = 0.5;
+
+const music = new Audio("music/bg2.mp3");
+music.loop = true;
+music.volume = 0;
+
+let musicPlaying = false;
+let fadeInterval = null;
+
+function fadeInMusic() {
+    clearInterval(fadeInterval);
+    music.play().catch(()=>{});
+
+    fadeInterval = setInterval(() => {
+        music.volume = Math.min(1, music.volume + 0.01);
+
+        if (music.volume >= 1) {
+            music.volume = 1;
+            clearInterval(fadeInterval);
+        }
+    }, 50);
+}
+
+function fadeOutMusic() {
+    clearInterval(fadeInterval);
+
+    fadeInterval = setInterval(() => {
+        if (music.volume > 0.02) {
+            music.volume -= 0.02;
+        } else {
+            music.volume = 0;
+            music.pause();
+            clearInterval(fadeInterval);
+        }
+    }, 50);
+}
+
+wrapper.addEventListener("click", () => {
+    musicPlaying ? fadeOutMusic() : fadeInMusic();
+    musicPlaying = !musicPlaying;
+});
+
+/* =====================
+   DIALOGUE
+===================== */
+let typingInterval = null;
+let isTyping = false;
+let idleTimeout = null;
+const IDLE_TIME = 5000;
+
+function resetIdleTimer() {
+    clearTimeout(idleTimeout);
+
+    idleTimeout = setTimeout(() => {
+        if (!isTyping) {
+            hideDialogue();
+        }
+    }, IDLE_TIME);
+}
+
+function showTalking() {
+    idle.style.display = "none";
+    talking.style.display = "block";
+}
+
+function showIdle() {
+    idle.style.display = "block";
+    talking.style.display = "none";
+}
+
+function showDialogue() {
+    dialogueBox.style.display = "block";
+    requestAnimationFrame(() => dialogueBox.classList.add("show"));
+}
+
+function hideDialogue() {
+    dialogueBox.classList.remove("show");
+    setTimeout(()=>{ if(!isTyping) dialogueBox.style.display="none"; },250);
+}
+
+function typeText(text) {
+    if (isTyping) {
+        clearInterval(typingInterval);
+        dialogueText.innerHTML = text;
+        showIdle();
+        isTyping = false;
+        return;
+    }
+
+    dialogueText.innerHTML = "";
+    showDialogue();
+	resetIdleTimer();
+    showTalking();
+    isTyping = true;
+
+    let i = 0;
+
+    typingInterval = setInterval(() => {
+        if (i < text.length) {
+            dialogueText.innerHTML += text[i];
+
+            if (text[i] !== " ") {
+                const tick = new Audio("music/talk.mp3");
+                tick.volume = 0.3;
+                tick.play();
+            }
+
+            i++;
+        } else {
+            clearInterval(typingInterval);
+            setTimeout(showIdle, 200);
+            isTyping = false;
+			resetIdleTimer();
+        }
+    }, 30);
+}
+
+function cardReactionDialogue(card) {
+    const lines = [
+        `${card.name}, eh?`,
+        `Interested in ${card.name}?`,
+        `${card.name}... How many do you need?`,
+        `Ah, ${card.name}. I was hoping someone noticed that one.`,
+		`${card.name}...? I should have a few around here.`,
+		`${card.name} is one of my finest cards!`,
+		`Well, ${card.name} is a wise choice indeed!`,
+		`I just got ${card.name} back in stock. Are you interested?`,
+		`Keep the star chips coming and I'll sell you this.`,
+		`${card.name} seems like a solid choice...`,
+		`${card.name} really has a nice ring to it, y'know.`,
+		`Quite the discerning duelist, aren't you?`,
+		`${card.name} is just one of hundreds of cards I hold! Come in, come in!`,
+		`${card.name} is old stock, but it will serve you well.`,
+		`Are you here to buy, or just waste my time perusing? Grr...`
+    ];
+
+    const text = lines[Math.floor(Math.random() * lines.length)];
+
+    typeText(text);
+}
+
+/* =====================
+   TABS
+===================== */
+	let firstTabClicked = false;
+	const buyFeedbackDialogue = {
+    soldOut: [
+        "Ah... that one's gone.",
+        "Too slow, I'm all out of that card.",
+        "Sold out. It's a very popular choice.",
+		"I'll order some more, don't worry.",
+		"I can't sell you what I don't have!"
+    ],
+    notEnough: [
+        "You'll need more star chips for that one.",
+        "Come back when you're richer.",
+        "Not quite enough, eh...?",
+		"Do I look stupid? Shops don't run on charity!",
+		"Perhaps you'd like to peruse my... cheaper cards?"
+    ]
+};
+
+
+
+function renderCards(category, containerId) {
+
+
+
+    const panel = document.getElementById(containerId);
+    if (!panel) return;
+
+    const container = panel.querySelector(".list");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const items = gameState[category];
+    if (!items) return;
+
+    items.forEach((card, index) => {
+
+        const item = document.createElement("div");
+        item.className = "list-item card" + (card.hasBeenBought ? " owned" : "");
+const currentChips = counter;
+
+let buyLabel = "Buy";
+let buyClass = "buy-btn";
+
+if (card.copies <= 0) {
+    buyLabel = "SOLD OUT";
+    buyClass += " sold-out";
+} else if (currentChips < card.cost) {
+    buyLabel = "...";
+    buyClass += " disabled";
+} else {
+    buyClass += " can-buy";
+}
+
+
+        const canBuy = counter >= card.cost && card.copies > 0;
+
+item.innerHTML = `
+    <img class="card-icon" src="${TYPE_ICONS[card.type] || ""}" />
+
+    <div class="card-info">
+        <div class="card-name">${card.name}</div>
+        <div class="card-stats">
+            Cost: ${card.cost} | Copies: ${card.copies}
+        </div>
+    </div>
+
+    <button class="${buyClass}">
+        ${buyLabel}
+    </button>
+`;
+
+        const buyBtn = item.querySelector(".buy-btn");
+
+buyBtn.addEventListener("click", () => {
+
+    const card = gameState[category][index];
+    // SOLD OUT
+    if (card.copies <= 0) {
+        const pool = buyFeedbackDialogue.soldOut;
+        const phrase = pool[Math.floor(Math.random() * pool.length)];
+        typeText(phrase);
+        return;
+    }
+
+    // NOT ENOUGH CHIPS
+    if (counter < card.cost) {
+        const pool = buyFeedbackDialogue.notEnough;
+        const phrase = pool[Math.floor(Math.random() * pool.length)];
+        typeText(phrase);
+        return;
+    }
+
+    // SUCCESS
+    buySound.currentTime = 0;
+    buySound.play().catch(()=>{});
+
+    handleBuy(category, index);
+});
+
+        container.appendChild(item);
+    });
+}
+
+function handleBuy(category, index) {
+
+    const card = gameState[category][index];
+    if (!card) return;
+
+    // can't buy if no stock or not enough chips
+    if (card.copies <= 0) return;
+    if (counter < card.cost) return;
+
+    // subtract cost
+    setCounter(counter - card.cost);
+
+    // reduce stock
+    card.copies--;
+	card.hasBeenBought = true;
+
+    // refresh that tab only
+    renderCards(category, category);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+	
+	if (!window.CARDS) {
+    console.error("CARDS not loaded. Check cards.js script order.");
+    window.CARDS = {
+        monsters: [],
+        spells: [],
+        traps: []
+    };
+}
+
+gameState = structuredClone ? structuredClone(window.CARDS) : JSON.parse(JSON.stringify(window.CARDS));
+	renderCarousel();
+    const tabs = document.querySelectorAll(".tab");
+    const panels = document.querySelectorAll(".tab-panel");
+
+    const tabDialogue = {
+        monsters: [
+            "Looking to fix up your deck?",
+            "They're masterworks all!",
+            "Are you gonna buy...?",
+			"You seem worthy of these to me.",
+			"Take a look at these vile creatures."
+        ],
+        spells: [
+            "I'm something of a wizard myself...",
+            "Say the magic word, heheh...",
+            "Spells at the ready.",
+			"Looking to even the field, eh?",
+			"You need some divine intervention, it seems."
+        ],
+        traps: [
+            "These traps'll really mess with your opponent!",
+            "Why don't you take a seat...",
+            "Try not to use these for evil.",
+			"Add some bite to that bark of yours.",
+			"Have you considered a trap card in these trying times?"
+        ]
+    };
+	
+	
+renderCards("monsters", "monsters");
+renderCards("spells", "spells");
+renderCards("traps", "traps");
+
+    tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+				
+        const id = tab.dataset.tab;
+
+        // safety check
+        if (!id) return;
+		
+				if (!firstTabClicked) {
+				firstTabClicked = true;
+				if (carousel) carousel.style.display = "none";
+}
+
+        // switch active tab button
+        tabs.forEach(t => t.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+
+        tab.classList.add("active");
+
+        // activate correct panel
+        const targetPanel = document.getElementById(id);
+        if (targetPanel) {
+            targetPanel.classList.add("active");
+        }
+
+        // ⭐ STEP 3 — RENDER CARDS GOES HERE
+        requestAnimationFrame(() => renderCards(id, id));
+
+        // existing dialogue trigger (keep this AFTER render)
+        if (tabDialogue[id]) {
+            const phrase = tabDialogue[id][Math.floor(Math.random() * tabDialogue[id].length)];
+            typeText(phrase);
+        }
+		
+		document.getElementById("startup-overlay")?.remove();
+		hideNewsTicker();
+    });
+});
+});
+
+/* =====================
+   BACKGROUND SCROLL
+===================== */
+const bg = document.getElementById("background");
+let offsetX = 0, offsetY = 0;
+
+function animateBackground() {
+    offsetX += 0.3;
+    offsetY -= 0.3;
+    bg.style.backgroundPosition = `${offsetX}px ${offsetY}px`;
+    requestAnimationFrame(animateBackground);
+}
+animateBackground();
+
+
+
+/* =====================
+   COUNTER MILESTONE DIALOGUE
+===================== */
+const counterMilestones = new Set([0, 5, 10, 20, 50, 100]);
+
+const counterDialogueExact = {
+    0: ["Back to nothing, eh?"],
+    5: ["Five... you can't get much with that."],
+    10: ["Ten already. Not bad."],
+    20: ["Twenty star chips... They must be burning a hole in your pocket, lad."],
+    50: ["Fifty? Now I'm really impressed."],
+    100: ["One hundred... perhaps you'd like to spend some in my humble store!"]
+};
+
+let triggeredMilestones = new Set();
+
+function handleCounterMilestone(oldValue, newValue, wasIncreasing) {
+    // SPECIAL CASE: allow zero always when reached
+    if (newValue === 0) {
+        if (triggeredMilestones.has(0)) return;
+
+        triggeredMilestones.add(0);
+
+        const pool = counterDialogueExact[0];
+        if (!pool) return;
+
+        const phrase = pool[Math.floor(Math.random() * pool.length)];
+        typeText(phrase);
+        return;
+    }
+
+    // normal milestones only trigger on upward movement
+    if (!wasIncreasing) return;
+
+    if (!counterMilestones.has(newValue)) return;
+
+    if (triggeredMilestones.has(newValue)) return;
+    triggeredMilestones.add(newValue);
+
+    const pool = counterDialogueExact[newValue];
+    if (!pool) return;
+
+    const phrase = pool[Math.floor(Math.random() * pool.length)];
+    typeText(phrase);
+}
+
+
+
+/* =====================
+   SWIPE COUNTER (STEP SYSTEM - FIXED)
+===================== */
+let counter = 0;
+let previousCounter = 0;
+const counterValue = document.getElementById("counter-value");
+
+function setCounter(val) {
+    const newValue = Math.max(0, Math.min(val, 999));
+
+    if (newValue === counter) return;
+
+    // ⭐ OPTIONAL CHANGE GOES HERE
+    if (newValue < previousCounter) {
+        triggeredMilestones.delete(newValue);
+    }
+
+    const wasIncreasing = newValue > counter;
+
+    previousCounter = counter;
+    counter = newValue;
+
+    counterValue.textContent = counter;
+
+    if (navigator.vibrate) navigator.vibrate(10);
+
+    handleCounterMilestone(previousCounter, counter, wasIncreasing);
+}
+
+/* --- STEP-BASED SWIPE SYSTEM --- */
+let isDragging = false;
+let lastX = 0;
+let accumulated = 0;
+let velocity = 0;
+
+const STEP_SIZE = 12;
+const INERTIA_FRICTION = 0.02;
+
+/* POINTER DOWN */
+counterValue.addEventListener("pointerdown", (e) => {
+    isDragging = true;
+    lastX = e.clientX;
+    accumulated = 0;
+    velocity = 0;
+
+    counterValue.setPointerCapture(e.pointerId);
+});
+
+/* POINTER MOVE */
+counterValue.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+
+    const dx = e.clientX - lastX;
+    lastX = e.clientX;
+
+    accumulated += dx;
+    velocity = dx;
+
+    while (Math.abs(accumulated) >= STEP_SIZE) {
+        const step = Math.sign(accumulated);
+        setCounter(counter + step);
+        accumulated -= STEP_SIZE * step;
+    }
+});
+
+/* POINTER UP */
+counterValue.addEventListener("pointerup", () => {
+    isDragging = false;
+    applyInertia();
+});
+
+counterValue.addEventListener("pointercancel", () => {
+    isDragging = false;
+});
+
+/* INERTIA */
+function applyInertia() {
+    let v = velocity;
+
+    function step() {
+        if (Math.abs(v) < 0.5) return;
+
+        accumulated += v;
+
+        while (Math.abs(accumulated) >= STEP_SIZE) {
+            const stepVal = Math.sign(accumulated);
+            setCounter(counter + stepVal);
+            accumulated -= STEP_SIZE * stepVal;
+        }
+
+        v *= INERTIA_FRICTION;
+
+        requestAnimationFrame(step);
+    }
+
+    step();
+}
+
+/* =====================
+   START
+===================== */
+setCounter(0);
+typeText("Welcome! Take a look at my featured stock!");
+requestAnimationFrame(animateCarousel);
+setTimeout(() => {
+    startNewsTicker();
+}, 3000);
+</script>
+
+</body>
+</html>
