@@ -1391,6 +1391,11 @@ function setCounter(val) {
     player.chips = newValue;
 
     counterValue.textContent = player.chips;
+	
+	// HAPTIC FEEDBACK (mobile only)
+if (navigator.vibrate) {
+    navigator.vibrate(8);
+}
 
     handleCounterMilestone(previousCounter, player.chips, wasIncreasing);
 }
