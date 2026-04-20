@@ -247,7 +247,7 @@ window.CARDS = {
         { id: "sp129", name: "Necrovalley", cost: 10, copies: 1, type: "spell" },
         { id: "sp130", name: "Raigeki", cost: 20, copies: 2, type: "spell" },
         { id: "sp131", name: "Dark Hole", cost: 20, copies: 2, type: "spell" },
-        { id: "sp132", name: "Harpie's Feather Duster", cost: 20, copies: 2, type: "spell" }
+        { id: "sp132", name: "Harpie's Feather Duster", cost: 20, copies: 2, type: "spell" },
 		{ id: "sp133", name: "Heavy Storm", cost: 20, copies: 1, type: "spell" }
     ],
 
