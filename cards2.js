@@ -31,7 +31,7 @@ window.CARDS = {
         { id: "mon29", name: "Gilasaurus", cost: 3, copies: 2, type: "effect" },
         { id: "mon30", name: "Insect Princess", cost: 3, copies: 1, type: "effect" },
         { id: "mon31", name: "Mythical Beast of Serket", cost: 3, copies: 1, type: "effect" },
-        { id: "mon32", name: "Toon Summoned Skull", cost: 5, copies: 3, type: "effect" },
+        { id: "mon32", name: "Toon Summoned Skull", cost: 3, copies: 1, type: "effect" },
         { id: "mon33", name: "Berfomet", cost: 3, copies: 1, type: "effect" },
         { id: "mon34", name: "Divine Knight Ishzark", cost: 3, copies: 1, type: "effect" },
         { id: "mon35", name: "Lesser Fiend", cost: 3, copies: 1, type: "effect" },
