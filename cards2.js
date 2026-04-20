@@ -108,8 +108,8 @@ window.CARDS = {
         { id: "mon106", name: "Yamata Dragon", cost: 10, copies: 1, type: "effect" },
         { id: "mon107", name: "Buster Blader", cost: 10, copies: 1, type: "effect" },
         { id: "mon108", name: "Barrel Dragon", cost: 10, copies: 1, type: "effect" },
-        { id: "mon109", name: "Red-Eyes Zombie Dragon", cost: 5, copies: 1, type: "effect" },
-        { id: "mon110", name: "Simorgh, Bird of Ancestry", cost: 5, copies: 1, type: "effect" },
+        { id: "mon109", name: "Red-Eyes Zombie Dragon", cost: 10, copies: 1, type: "effect" },
+        { id: "mon110", name: "Simorgh, Bird of Ancestry", cost: 10, copies: 1, type: "effect" },
         { id: "mon111", name: "Chaos Emperor Dragon - Envoy of The End", cost: 20, copies: 1, type: "effect" }
     ],
 
