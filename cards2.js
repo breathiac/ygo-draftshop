@@ -243,7 +243,7 @@ window.CARDS = {
         { id: "sp125", name: "Graceful Charity", cost: 10, copies: 2, type: "spell" },
         { id: "sp126", name: "Monster Reborn", cost: 10, copies: 2, type: "spell" },
         { id: "sp127", name: "Pre-Preparation of Rites", cost: 10, copies: 2, type: "spell" },
-        { id: "sp128", name: "Zombie World", cost: 3, copies: 1, type: "spell" },
+        { id: "sp128", name: "Zombie World", cost: 10, copies: 1, type: "spell" },
         { id: "sp129", name: "Necrovalley", cost: 10, copies: 1, type: "spell" },
         { id: "sp130", name: "Raigeki", cost: 20, copies: 2, type: "spell" },
         { id: "sp131", name: "Dark Hole", cost: 20, copies: 2, type: "spell" },
