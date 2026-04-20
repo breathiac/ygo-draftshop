@@ -38,7 +38,7 @@ window.CARDS = {
         { id: "mon36", name: "Cyber Dragon", cost: 3, copies: 3, type: "effect" },
         { id: "mon37", name: "Blue Flame Swordsman", cost: 3, copies: 1, type: "effect" },
         { id: "mon38", name: "Don Zaloog", cost: 3, copies: 1, type: "effect" },
-        { id: "mon39", name: "Summoned Skull", cost: 3, copies: 1, type: "effect" },
+        { id: "mon39", name: "Summoned Skull", cost: 3, copies: 1, type: "normal" },
         { id: "mon40", name: "The Tricky", cost: 3, copies: 2, type: "effect" },
         { id: "mon41", name: "Guardian Sphinx", cost: 3, copies: 1, type: "effect" },
         { id: "mon42", name: "Thestalos The Firestorm Monarch", cost: 3, copies: 1, type: "effect" },
