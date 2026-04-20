@@ -4,7 +4,7 @@ window.CARDS = {
         { id: "mon2", name: "Nimble Momonga", cost: 1, copies: 4, type: "effect" },
         { id: "mon3", name: "Nimble Musasabi", cost: 1, copies: 3, type: "effect" },
         { id: "mon4", name: "Wall Shadow", cost: 1, copies: 1, type: "effect" },
-        { id: "mon5", name: "Z-Metal Tank", cost: 5, copies: 3, type: "effect" },
+        { id: "mon5", name: "Z-Metal Tank", cost: 1, copies: 1, type: "effect" },
         { id: "mon6", name: "Y-Dragon Head", cost: 1, copies: 1, type: "effect" },
         { id: "mon7", name: "Spirit of The Pot of Greed", cost: 1, copies: 1, type: "effect" },
         { id: "mon8", name: "Red-Eyes Black Metal Dragon", cost: 1, copies: 1, type: "effect" },
@@ -12,7 +12,7 @@ window.CARDS = {
         { id: "mon10", name: "The Trojan Horse", cost: 1, copies: 2, type: "effect" },
         { id: "mon11", name: "Larvae Moth", cost: 1, copies: 1, type: "effect" },
         { id: "mon12", name: "Cocoon of Evolution", cost: 1, copies: 1, type: "effect" },
-        { id: "mon13", name: "Great Moth", cost: 5, copies: 3, type: "effect" },
+        { id: "mon13", name: "Great Moth", cost: 1, copies: 1, type: "effect" },
         { id: "mon14", name: "Chaos Necromancer", cost: 1, copies: 1, type: "effect" },
         { id: "mon15", name: "Regenerating Mummy", cost: 1, copies: 1, type: "effect" },
         { id: "mon16", name: "Strike Ninja", cost: 1, copies: 1, type: "effect" },
@@ -218,6 +218,7 @@ window.CARDS = {
         { id: "sp101", name: "Card Destruction", cost: 5, copies: 1, type: "spell" },
         { id: "sp102", name: "Dragon's Mirror", cost: 5, copies: 2, type: "spell" },
         { id: "sp103", name: "Ancient Rules", cost: 5, copies: 2, type: "spell" },
+		{ id: "sp999", name: "Book of Life", cost: 5, copies: 2, type: "spell" },
         { id: "sp104", name: "Meteor of Destruction", cost: 5, copies: 1, type: "spell" },
         { id: "sp105", name: "Upstart Goblin", cost: 5, copies: 2, type: "spell" },
         { id: "sp106", name: "Fusion Recovery", cost: 5, copies: 3, type: "spell" },
@@ -241,12 +242,13 @@ window.CARDS = {
         { id: "sp124", name: "United We Stand", cost: 10, copies: 1, type: "spell" },
         { id: "sp125", name: "Graceful Charity", cost: 10, copies: 2, type: "spell" },
         { id: "sp126", name: "Monster Reborn", cost: 10, copies: 2, type: "spell" },
-        { id: "sp127", name: "Prep-Preparation of Rites", cost: 10, copies: 2, type: "spell" },
+        { id: "sp127", name: "Pre-Preparation of Rites", cost: 10, copies: 2, type: "spell" },
         { id: "sp128", name: "Zombie World", cost: 3, copies: 1, type: "spell" },
         { id: "sp129", name: "Necrovalley", cost: 10, copies: 1, type: "spell" },
         { id: "sp130", name: "Raigeki", cost: 20, copies: 2, type: "spell" },
         { id: "sp131", name: "Dark Hole", cost: 20, copies: 2, type: "spell" },
         { id: "sp132", name: "Harpie's Feather Duster", cost: 20, copies: 2, type: "spell" }
+		{ id: "sp133", name: "Heavy Storm", cost: 20, copies: 1, type: "spell" }
     ],
 
     traps: [
